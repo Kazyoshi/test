@@ -1,0 +1,20 @@
+title: approvalRouteInfo
+type: object
+description: 承認ルートの順序情報
+properties:
+  route:
+    type: object
+    properties:
+      approvalRouteId:
+        type: number
+      companyId:
+        type: number
+      workflowId:
+        type: number
+      sequenceId:
+        type: number
+    required:
+      - approvalRouteId
+      - companyId
+      - workflowId
+      - sequenceId

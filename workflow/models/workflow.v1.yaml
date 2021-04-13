@@ -1,0 +1,28 @@
+title: workflowInfo
+type: object
+properties:
+  workflowId:
+    type: string
+  companyId:
+    type: string
+  statusCode:
+    type: number
+    description: '1:ENABLED, 2:EDITTING, 8:DISABLED, 9:DELETED'
+  statusValue:
+    type: string
+    description: '1:ENABLED, 2:EDITTING, 8:DISABLED, 9:DELETED'
+  title:
+    type: string
+  description:
+    type: string
+  proxy_application_flg:
+    type: boolean
+  memo:
+    type: string
+  approvalRoute:
+    $ref: ./approval_routes.v1.yaml
+required:
+  - workflowId
+  - companyId
+  - statusCode
+  - statusValue
