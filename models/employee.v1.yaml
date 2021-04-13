@@ -1,0 +1,25 @@
+title: employeeInfo
+type: object
+description: 従業員情報
+properties:
+  employeeId:
+    type: number
+  name:
+    type: string
+    description: employees.name
+  email:
+    type: string
+    description: employees.email
+  companyEmployeeId:
+    type: string
+    description: employees.company_employee_id
+  phoneNumber:
+    type: string
+    description: employees.phone_number
+  affiliationInfo:
+    type: array
+    items:
+      $ref: ./affiliation.v1.yaml
+required:
+  - employeeId
+  - name

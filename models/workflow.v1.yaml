@@ -26,3 +26,4 @@ required:
   - companyId
   - statusCode
   - statusValue
+description: ワークフローと承認経路に関する情報

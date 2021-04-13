@@ -11,10 +11,14 @@ properties:
         type: number
       workflowId:
         type: number
-      sequenceId:
+      procedureNum:
         type: number
+      inspectors:
+        type: array
+        items:
+          $ref: ./inspector.v1.yaml
     required:
       - approvalRouteId
       - companyId
       - workflowId
-      - sequenceId
+      - procedureNum

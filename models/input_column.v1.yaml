@@ -1,0 +1,29 @@
+title: inputColumnInfo
+type: object
+properties:
+  inputColumnId:
+    type: integer
+  companyId:
+    type: integer
+  workflowId:
+    type: integer
+  inputData:
+    type: array
+    items:
+      type: object
+      properties:
+        procedureNum:
+          type: number
+        dataTypeCode:
+          type: number
+        dataTypeValue:
+          type: string
+        requiredFlg:
+          type: boolean
+        inputTitle:
+          type: string
+required:
+  - inputColumnId
+  - companyId
+  - workflowId
+  - inputData

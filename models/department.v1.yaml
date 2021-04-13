@@ -1,0 +1,16 @@
+title: department
+type: object
+properties:
+  departmentId:
+    type: number
+  companyId:
+    type: number
+  name:
+    type: string
+  parentDepartmentId:
+    type: number
+required:
+  - departmentId
+  - companyId
+  - name
+description: 組織名と上位組織の有無に関する情報
