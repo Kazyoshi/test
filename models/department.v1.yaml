@@ -1,9 +1,8 @@
 title: department
 type: object
+description: 組織名と上位組織の有無に関する情報
 properties:
   departmentId:
-    type: number
-  companyId:
     type: number
   name:
     type: string
@@ -11,6 +10,4 @@ properties:
     type: number
 required:
   - departmentId
-  - companyId
   - name
-description: 組織名と上位組織の有無に関する情報

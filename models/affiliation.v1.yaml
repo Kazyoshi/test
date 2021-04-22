@@ -1,10 +1,10 @@
 title: affiliationInfo
 type: object
+description: 従業員が所属する組織の情報
 properties:
   affiliationId:
     type: number
-  affiliationInfo:
+  affiliations:
     type: array
     items:
       $ref: ./department.v1.yaml
-description: 従業員が所属する組織の情報

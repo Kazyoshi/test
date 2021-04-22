@@ -1,95 +1,13 @@
 openapi: 3.0.0
+tags:
+  - name: workflow
 info:
   title: workflow
   version: '1.0'
   description: ''
 servers:
-  - url: 'http://localhost:3000/workflow/'
+  - url: 'http://localhost:3000/workflow/v1/'
 paths:
-  '/workflow/{workflowId}':
-    parameters:
-      - schema:
-          type: integeru
-        name: userId
-        in: path
-        required: true
-        description: Id of an existing user.
-    get:
-      summary: Get User Info by User ID
-      tags: []
-      responses:
-        '200':
-          description: User Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                Get User Alice Smith:
-                  value:
-                    id: 142
-                    firstName: Alice
-                    lastName: Smith
-                    email: alice.smith@gmail.com
-                    dateOfBirth: '1997-10-31'
-                    emailVerified: true
-                    signUpDate: '2019-08-24'
-        '404':
-          description: User Not Found
-      operationId: get-users-userId
-      description: Retrieve the information of the user with the matching user ID.
-    patch:
-      summary: Update User Information
-      operationId: patch-users-userId
-      responses:
-        '200':
-          description: User Updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-              examples:
-                Updated User Rebecca Baker:
-                  value:
-                    id: 13
-                    firstName: Rebecca
-                    lastName: Baker
-                    email: rebecca@gmail.com
-                    dateOfBirth: '1985-10-02'
-                    emailVerified: false
-                    createDate: '2019-08-24'
-        '404':
-          description: User Not Found
-        '409':
-          description: Email Already Taken
-      description: Update the information of an existing user.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                email:
-                  type: string
-                  description: 'If a new email is given, the user''s email verified property will be set to false.'
-                dateOfBirth:
-                  type: string
-            examples:
-              Update First Name:
-                value:
-                  firstName: Rebecca
-              Update Email:
-                value:
-                  email: rebecca@gmail.com
-              Update Last Name & Date of Birth:
-                value:
-                  lastName: Baker
-                  dateOfBirth: '1985-10-02'
-        description: Patch user properties to update.
   /user:
     post:
       summary: Create New User
@@ -144,9 +62,88 @@ paths:
                   dateOfBirth: '1996-08-24'
         description: Post the necessary fields for the API to create a new user.
       description: Create a new user.
-  '/{workflowId}':
+  definitions:
     get:
-      summary: Get a defined workflow
+      summary: 登録されているワークフローを検索
+      tags:
+        - workflow
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: ../../models/workflowInfo.v1.yaml
+      operationId: get-v1-workflows
+      description: 登録中のワークフローを検索して複数件の情報を返す。workflowIdの指定があれば特定の1件の情報を取得し、指定が無い場合は検索条件に基づく結果を返す。
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                companyId:
+                  type: number
+                workingStatuses:
+                  description: |-
+                    Use Enum.workingStatus.Value
+                    ex. [ENABLED, DELETED]
+                  type: array
+                  items: {}
+                workflowSearchQuery:
+                  type: object
+                  properties:
+                    entitySearch:
+                      type: object
+                      properties:
+                        keywords:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              keyword:
+                                type: string
+                                description: Searching keyword
+                              operator:
+                                type: string
+                                description: Use stringsSearchOperator.Value or stringsSearchOperator.Code
+                              entityName:
+                                type: string
+                                description: |-
+                                  EntityName of search target.
+                                  ex. workflowInfo.title
+                            required:
+                              - keyword
+                              - operator
+                              - entityName
+                    sortOrders:
+                      type: object
+                      properties:
+                        entityName:
+                          type: string
+                        sortOrder:
+                          type: string
+                          description: Use Enum.sortOrder.Value or Enum.sortOrder.Code
+              required:
+                - companyId
+            examples:
+              example-1:
+                value:
+                  workflowSearchQuery:
+                    companyId: 0
+                    workingStatus: string
+          application/xml:
+            schema:
+              type: object
+              properties: {}
+        description: ''
+    parameters: []
+  '/definitions/{workflowId}':
+    get:
+      summary: Your GET endpoint
       tags: []
       responses:
         '200':
@@ -154,95 +151,703 @@ paths:
           content:
             application/json:
               schema:
+                description: ''
                 type: object
                 properties:
-                  requests:
-                    type: object
-                    properties:
-                      requestId:
-                        type: string
-                  responseStatuses:
-                    type: object
-                    properties:
-                      statusCode:
-                        type: string
-                      responseData:
-                        type: string
-                  result:
-                    type: object
-                    properties:
-                      workflow:
-                        $ref: ../models/workflow.v1.yaml
-            application/xml:
+                  companyId:
+                    type: number
+                  workflowId:
+                    type: number
+                  title:
+                    type: string
+                    minLength: 1
+                  description:
+                    type: string
+                    minLength: 1
+                  proxyApplicationFlg:
+                    type: boolean
+                  approvalRouteDefinitions:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  approvalRoute:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      required:
+                        - approvalRouteId
+                        - procedureNum
+                        - requiredApprovalNum
+                        - anyApprovalNum
+                      properties:
+                        approvalRouteId:
+                          type: number
+                        procedureNum:
+                          type: number
+                        requiredApprovalNum:
+                          type: number
+                        anyApprovalNum:
+                          type: number
+                        inspectorDefinitions:
+                          type: array
+                          uniqueItems: true
+                          minItems: 1
+                          items:
+                            required:
+                              - inspectorId
+                              - assignTypeValue
+                              - assignTypeCode
+                              - employeeId
+                              - managerialTitleId
+                              - departmentId
+                              - requiredFlg
+                            properties:
+                              inspectorId:
+                                type: number
+                              assignTypeValue:
+                                type: string
+                                minLength: 1
+                              assignTypeCode:
+                                type: number
+                              employeeId:
+                                type: number
+                              managerialTitleId:
+                                type: number
+                              departmentId:
+                                type: number
+                              requiredFlg:
+                                type: boolean
+                required:
+                  - companyId
+                  - workflowId
+                  - title
+                  - description
+                  - proxyApplicationFlg
+                  - approvalRouteDefinitions
+                  - approvalRoute
+              examples:
+                example-1:
+                  value:
+                    companyId: 1
+                    workflowId: 10
+                    title: 国内出張申請
+                    description: 国内出張時にこちらのフォームより必要事項と必要書類を用意し承 認申請をしてください。
+                    proxyApplicationFlg: true
+                    approvalRouteDefinitions: []
+                    approvalRoute:
+                      - approvalRouteId: 1001
+                        procedureNum: 1
+                        requiredApprovalNum: 3
+                        anyApprovalNum: 0
+                        inspectorDefinitions:
+                          - inspectorId: 10001
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100001
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10002
+                            assignTypeValue: ASSIGN_TO_MANAGER
+                            assignTypeCode: 2
+                            employeeId: 0
+                            managerialTitleId: 1001
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10003
+                            assignTypeValue: ASSIGN_TO_DEPARTMENT
+                            assignTypeCode: 3
+                            employeeId: 0
+                            managerialTitleId: 0
+                            departmentId: 100001
+                            requiredFlg: true
+                      - approvalRouteId: 1001
+                        procedureNum: 2
+                        requiredApprovalNum: 1
+                        anyApprovalNum: 1
+                        inspectorDefinitions:
+                          - inspectorId: 10004
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100002
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10005
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100003
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: false
+      operationId: get-definitions
+      description: ワークフローの情報を1件取得する
+    parameters:
+      - schema:
+          type: number
+        name: workflowId
+        in: path
+        required: true
+    post:
+      summary: ''
+      operationId: post-definitions-workflowId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
               schema:
+                description: ''
                 type: object
-                properties: {}
-      operationId: get
+                properties:
+                  companyId:
+                    type: number
+                  workflowId:
+                    type: number
+                  requestId:
+                    type: string
+                    minLength: 1
+                  workflowDefinitions:
+                    type: object
+                    properties:
+                      workingStatusCode:
+                        type: number
+                      title:
+                        type: string
+                        minLength: 1
+                      description:
+                        type: string
+                        minLength: 1
+                      proxyApplicationFlag:
+                        type: boolean
+                      approvalRouteDefinitions:
+                        type: array
+                        uniqueItems: true
+                        minItems: 1
+                        items:
+                          required:
+                            - approvalRouteId
+                            - procedureNum
+                            - requiredApprovalNum
+                            - anyApprovalNum
+                          properties:
+                            approvalRouteId:
+                              type: number
+                            procedureNum:
+                              type: number
+                            requiredApprovalNum:
+                              type: number
+                            anyApprovalNum:
+                              type: number
+                            inspectorDefinitions:
+                              type: array
+                              uniqueItems: true
+                              minItems: 1
+                              items:
+                                required:
+                                  - inspectorId
+                                  - assignTypeValue
+                                  - assignTypeCode
+                                  - employeeId
+                                  - managerialTitleId
+                                  - departmentId
+                                  - requiredFlg
+                                properties:
+                                  inspectorId:
+                                    type: number
+                                  assignTypeValue:
+                                    type: string
+                                    minLength: 1
+                                  assignTypeCode:
+                                    type: number
+                                  employeeId:
+                                    type: number
+                                  managerialTitleId:
+                                    type: number
+                                  departmentId:
+                                    type: number
+                                  requiredFlg:
+                                    type: boolean
+                    required:
+                      - workingStatusCode
+                      - title
+                      - description
+                      - proxyApplicationFlag
+                      - approvalRouteDefinitions
+                required:
+                  - companyId
+                  - workflowId
+                  - requestId
+                  - workflowDefinitions
+              examples:
+                200 OK:
+                  value:
+                    companyId: 1
+                    workflowId: 1001
+                    requestId: hogehoge
+                    workflowDefinitions:
+                      workingStatusCode: 2
+                      title: 国内出張申請
+                      description: 国内出張時にこちらのフォームより必要事項と必要書類を用意し承 認申請をしてください。
+                      proxyApplicationFlag: true
+                      approvalRouteDefinitions:
+                        - approvalRouteId: 1001
+                          procedureNum: 1
+                          requiredApprovalNum: 0
+                          anyApprovalNum: 1
+                          inspectorDefinitions:
+                            - inspectorId: 10001
+                              assignTypeValue: ASSIGN_TO_PERSON
+                              assignTypeCode: 1
+                              employeeId: 100001
+                              managerialTitleId: 0
+                              departmentId: 0
+                              requiredFlg: false
+                        - approvalRouteId: 1001
+                          procedureNum: 2
+                          requiredApprovalNum: 1
+                          anyApprovalNum: 0
+                          inspectorDefinitions:
+                            - inspectorId: 10002
+                              assignTypeValue: ASSIGN_TO_MANAGER
+                              assignTypeCode: 2
+                              employeeId: 0
+                              managerialTitleId: 1001
+                              departmentId: 0
+                              requiredFlg: true
+                400 Bad Request:
+                  value:
+                    errors:
+                      - errorCode: 1000
+                        errorMessage: ワークフローIDが無効です。
+                      - errorCode: 1002
+                        errorMessage: 説明文の文字数がオーバーしています(1500文字以内)
+      description: ワークフローを新規で作成する
       requestBody:
         content:
           application/json:
             schema:
+              description: ''
               type: object
               properties:
+                companyId:
+                  type: number
                 requestId:
                   type: string
-              required:
-                - requestId
-      description: ワークフローの情報を1件取得する
-    post:
-      summary: Create a new workflow definition
-      tags: []
-      responses: {}
-      operationId: post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              oneOf:
-                - properties:
-                    workflow_id:
-                      type: number
-                    status:
+                  minLength: 1
+                workflowDefinitions:
+                  type: object
+                  properties:
+                    workingStatusCode:
                       type: number
                     title:
                       type: string
+                      minLength: 1
                     description:
                       type: string
-                    proxy_application_flg:
+                      minLength: 1
+                    proxyApplicationFlag:
                       type: boolean
-                    memo:
-                      type: string
-                    approval_route:
+                    approvalRouteDefinitions:
                       type: array
+                      uniqueItems: true
+                      minItems: 1
                       items:
-                        type: object
+                        required:
+                          - procedureNum
+                          - requiredApprovalNum
+                          - anyApprovalNum
                         properties:
-                          sequence_number:
+                          procedureNum:
                             type: number
-              type: object
-        description: ワークフローを新規追加するためのエンドポイント
-    put:
-      summary: Update a workflow definition
+                          requiredApprovalNum:
+                            type: number
+                          anyApprovalNum:
+                            type: number
+                          inspectorDefinitions:
+                            type: array
+                            uniqueItems: true
+                            minItems: 1
+                            items:
+                              required:
+                                - assignTypeValue
+                                - assignTypeCode
+                                - employeeId
+                                - managerialTitleId
+                                - departmentId
+                                - requiredFlg
+                              properties:
+                                assignTypeValue:
+                                  type: string
+                                  minLength: 1
+                                assignTypeCode:
+                                  type: number
+                                employeeId:
+                                  type: number
+                                managerialTitleId:
+                                  type: number
+                                departmentId:
+                                  type: number
+                                requiredFlg:
+                                  type: boolean
+                  required:
+                    - workingStatusCode
+                    - title
+                    - description
+                    - proxyApplicationFlag
+                    - approvalRouteDefinitions
+              required:
+                - companyId
+                - requestId
+                - workflowDefinitions
+            examples:
+              example-1:
+                value:
+                  companyId: 1
+                  requestId: hogehoge
+                  workflowDefinitions:
+                    workingStatusCode: 2
+                    title: 国内出張申請
+                    description: 国内出張 時にこちらのフォームより必要事項と必要書類を用意し承 認申請をしてください。
+                    proxyApplicationFlag: true
+                    approvalRouteDefinitions:
+                      - procedureNum: 1
+                        requiredApprovalNum: 0
+                        anyApprovalNum: 1
+                        inspectorDefinitions:
+                          - assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100001
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: false
+                      - procedureNum: 2
+                        requiredApprovalNum: 1
+                        anyApprovalNum: 0
+                        inspectorDefinitions:
+                          - assignTypeValue: ASSIGN_TO_MANAGER
+                            assignTypeCode: 2
+                            employeeId: 0
+                            managerialTitleId: 1001
+                            departmentId: 0
+                            requiredFlg: true
+  '/definitions/{workflowId}/approvalRoutes':
+    get:
+      summary: Your GET endpoint
       tags: []
-      responses: {}
-      operationId: put
-    delete:
-      summary: Disable to use a workflow
-      tags: []
-      responses: {}
-      operationId: delete
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  companyId:
+                    type: number
+                  workflowId:
+                    type: number
+                  approvalRoute:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      required:
+                        - approvalRouteId
+                        - procedureNum
+                        - requiredApprovalNum
+                        - anyApprovalNum
+                      properties:
+                        approvalRouteId:
+                          type: number
+                        procedureNum:
+                          type: number
+                        requiredApprovalNum:
+                          type: number
+                        anyApprovalNum:
+                          type: number
+                        inspectorDefinitions:
+                          type: array
+                          uniqueItems: true
+                          minItems: 1
+                          items:
+                            required:
+                              - inspectorId
+                              - assignTypeValue
+                              - assignTypeCode
+                              - employeeId
+                              - managerialTitleId
+                              - departmentId
+                              - requiredFlg
+                            properties:
+                              inspectorId:
+                                type: number
+                              assignTypeValue:
+                                type: string
+                                minLength: 1
+                              assignTypeCode:
+                                type: number
+                              employeeId:
+                                type: number
+                              managerialTitleId:
+                                type: number
+                              departmentId:
+                                type: number
+                              requiredFlg:
+                                type: boolean
+                required:
+                  - companyId
+                  - workflowId
+                  - approvalRoute
+              examples:
+                承認経路が2つ、承認経路１の必要承認者数が必須3名、任意1名のケース、承認経路2の必要承認者数が必須1名、任意1名:
+                  value:
+                    companyId: 1
+                    workflowId: 10
+                    approvalRoute:
+                      - approvalRouteId: 1001
+                        procedureNum: 1
+                        requiredApprovalNum: 3
+                        anyApprovalNum: 0
+                        inspectorDefinitions:
+                          - inspectorId: 10001
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 1000001
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10002
+                            assignTypeValue: ASSIGN_TO_MANAGER
+                            assignTypeCode: 2
+                            employeeId: 0
+                            managerialTitleId: 1001
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10003
+                            assignTypeValue: ASSIGN_TO_DEPARTMENT
+                            assignTypeCode: 3
+                            employeeId: 0
+                            managerialTitleId: 0
+                            departmentId: 100001
+                            requiredFlg: true
+                      - approvalRouteId: 1001
+                        procedureNum: 2
+                        requiredApprovalNum: 1
+                        anyApprovalNum: 1
+                        inspectorDefinitions:
+                          - inspectorId: 10004
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 1000002
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10005
+                            assignTypeValue: ASSIGN_TO_DEPARTMENT
+                            assignTypeCode: 3
+                            employeeId: 0
+                            managerialTitleId: 0
+                            departmentId: 100002
+                            requiredFlg: false
+            application/xml:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  companyId:
+                    type: number
+                  workflowId:
+                    type: number
+                  title:
+                    type: string
+                    minLength: 1
+                  description:
+                    type: string
+                    minLength: 1
+                  proxyApplicationFlg:
+                    type: boolean
+                  approvalRouteDefinitions:
+                    type: array
+                    items:
+                      required: []
+                      properties: {}
+                  approvalRoute:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      required:
+                        - approvalRouteId
+                        - procedureNum
+                        - requiredApprovalNum
+                        - anyApprovalNum
+                      properties:
+                        approvalRouteId:
+                          type: number
+                        procedureNum:
+                          type: number
+                        requiredApprovalNum:
+                          type: number
+                        anyApprovalNum:
+                          type: number
+                        inspectorDefinitions:
+                          type: array
+                          uniqueItems: true
+                          minItems: 1
+                          items:
+                            required:
+                              - inspectorId
+                              - assignTypeValue
+                              - assignTypeCode
+                              - employeeId
+                              - managerialTitleId
+                              - departmentId
+                              - requiredFlg
+                            properties:
+                              inspectorId:
+                                type: number
+                              assignTypeValue:
+                                type: string
+                                minLength: 1
+                              assignTypeCode:
+                                type: number
+                              employeeId:
+                                type: number
+                              managerialTitleId:
+                                type: number
+                              departmentId:
+                                type: number
+                              requiredFlg:
+                                type: boolean
+                required:
+                  - companyId
+                  - workflowId
+                  - title
+                  - description
+                  - proxyApplicationFlg
+                  - approvalRouteDefinitions
+                  - approvalRoute
+              examples:
+                example-1:
+                  value: |
+                    {"companyId":1,"workflowId":10,"title":"国内出張申請","description":"国内出張時にこちらのフォームより必要事項と必要書類を用意し承 認申請をしてください。","proxyApplicationFlg":true,"approvalRouteDefinitions":[],"approvalRoute":[{"approvalRouteId":1001,"procedureNum":1,"requiredApprovalNum":3,"anyApprovalNum":0,"inspectorDefinitions":[{"inspectorId":10001,"assignTypeValue":"ASSIGN_TO_PERSON","assignTypeCode":1,"employeeId":100001,"managerialTitleId":0,"departmentId":0,"requiredFlg":true},{"inspectorId":10002,"assignTypeValue":"ASSIGN_TO_MANAGER","assignTypeCode":2,"employeeId":0,"managerialTitleId":1001,"departmentId":0,"requiredFlg":true},{"inspectorId":10003,"assignTypeValue":"ASSIGN_TO_DEPARTMENT","assignTypeCode":3,"employeeId":0,"managerialTitleId":0,"departmentId":100001,"requiredFlg":true}]},{"approvalRouteId":1001,"procedureNum":2,"requiredApprovalNum":1,"anyApprovalNum":1,"inspectorDefinitions":[{"inspectorId":10004,"assignTypeValue":"ASSIGN_TO_PERSON","assignTypeCode":1,"employeeId":100002,"managerialTitleId":0,"departmentId":0,"requiredFlg":true},{"inspectorId":10005,"assignTypeValue":"ASSIGN_TO_PERSON","assignTypeCode":1,"employeeId":100003,"managerialTitleId":0,"departmentId":0,"requiredFlg":false}]}]}
+      operationId: get-definitions
     parameters:
       - schema:
           type: string
         name: workflowId
         in: path
         required: true
-  /workflows:
+  '/definitons/{workflowId}/approvalRoutes/{procedureNum}':
+    parameters:
+      - schema:
+          type: number
+        name: workflowId
+        in: path
+        required: true
+      - schema:
+          type: number
+        name: procedureNum
+        in: path
+        required: true
     get:
-      summary: get a workflow
+      summary: Your GET endpoint
       tags: []
-      responses: {}
-      operationId: get-aaa
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  companyId:
+                    type: number
+                  workflowId:
+                    type: number
+                  approvalRoute:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      required:
+                        - approvalRouteId
+                        - procedureNum
+                        - requiredApprovalNum
+                        - anyApprovalNum
+                      properties:
+                        approvalRouteId:
+                          type: number
+                        procedureNum:
+                          type: number
+                        requiredApprovalNum:
+                          type: number
+                        anyApprovalNum:
+                          type: number
+                        inspectorDefinitions:
+                          type: array
+                          uniqueItems: true
+                          minItems: 1
+                          items:
+                            required:
+                              - inspectorId
+                              - assignTypeValue
+                              - assignTypeCode
+                              - employeeId
+                              - managerialTitleId
+                              - departmentId
+                              - requiredFlg
+                            properties:
+                              inspectorId:
+                                type: number
+                              assignTypeValue:
+                                type: string
+                                minLength: 1
+                              assignTypeCode:
+                                type: number
+                              employeeId:
+                                type: number
+                              managerialTitleId:
+                                type: number
+                              departmentId:
+                                type: number
+                              requiredFlg:
+                                type: boolean
+                required:
+                  - companyId
+                  - workflowId
+                  - approvalRoute
+              examples:
+                workflowId=10の承認経路2の定義情報を取得する:
+                  value:
+                    companyId: 1
+                    workflowId: 10
+                    approvalRoute:
+                      - approvalRouteId: 1001
+                        procedureNum: 2
+                        requiredApprovalNum: 1
+                        anyApprovalNum: 1
+                        inspectorDefinitions:
+                          - inspectorId: 10004
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100002
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: true
+                          - inspectorId: 10005
+                            assignTypeValue: ASSIGN_TO_PERSON
+                            assignTypeCode: 1
+                            employeeId: 100003
+                            managerialTitleId: 0
+                            departmentId: 0
+                            requiredFlg: false
+      operationId: get-definitons-workflowId-approvalRoutes-procedureNum
 components:
   schemas:
     User:

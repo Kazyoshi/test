@@ -1,14 +1,15 @@
 title: workflowInfo
 type: object
+description: ワークフローと承認経路に関する情報
 properties:
   workflowId:
-    type: string
+    type: number
   companyId:
-    type: string
-  statusCode:
+    type: number
+  workingStatusCode:
     type: number
     description: '1:ENABLED, 2:EDITTING, 8:DISABLED, 9:DELETED'
-  statusValue:
+  workingStatus:
     type: string
     description: '1:ENABLED, 2:EDITTING, 8:DISABLED, 9:DELETED'
   title:
@@ -24,6 +25,5 @@ properties:
 required:
   - workflowId
   - companyId
-  - statusCode
-  - statusValue
-description: ワークフローと承認経路に関する情報
+  - workingStatusCode
+  - workingStatus

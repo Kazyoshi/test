@@ -7,18 +7,23 @@ properties:
     properties:
       approvalRouteId:
         type: number
-      companyId:
-        type: number
-      workflowId:
-        type: number
       procedureNum:
         type: number
+      requiredApprovalNum:
+        type: number
+        description: この承認経路での必須承認者数
+      anyApprovalNum:
+        type: number
+        description: この承認経路での任意承認者数
       inspectors:
         type: array
         items:
-          $ref: ./inspector.v1.yaml
+          type: object
+          properties:
+            required:
+              type: string
     required:
       - approvalRouteId
-      - companyId
-      - workflowId
       - procedureNum
+      - requiredApprovalNum
+      - anyApprovalNum
